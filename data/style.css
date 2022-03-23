@@ -1,0 +1,29 @@
+html {
+	margin: 0;
+	padding: 0;
+	font-family: Arial, Helvetica, sans-serif;
+}
+
+body {
+	min-height: 100vh;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+}
+
+.audio-container {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+}
+
+.audio-container > * {
+	margin-bottom: 10px;
+}
+
+.audio-title {
+	font-size: large;
+	font-weight: bold;
+}
