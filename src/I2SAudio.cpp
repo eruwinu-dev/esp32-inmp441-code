@@ -13,17 +13,6 @@ void i2sInit()
         .dma_buf_len = 1024,
     };
 
-    // i2s_config_t i2s_config = {
-    //     .mode = (i2s_mode_t)(I2S_MODE_MASTER | I2S_MODE_RX),
-    //     .sample_rate = I2S_SAMPLE_RATE,
-    //     .bits_per_sample = I2S_BITS_PER_SAMPLE_16BIT,
-    //     .channel_format = I2S_CHANNEL_FMT_ONLY_LEFT,
-    //     .communication_format = i2s_comm_format_t(I2S_COMM_FORMAT_I2S | I2S_COMM_FORMAT_I2S_MSB),
-    //     .intr_alloc_flags = ESP_INTR_FLAG_LEVEL1,
-    //     .dma_buf_count = 8,
-    //     .dma_buf_len = 256,
-    // };
-
     const i2s_pin_config_t pin_config = {
         .bck_io_num = I2S_SCK,
         .ws_io_num = I2S_WS,
@@ -70,17 +59,8 @@ void i2s_adc(char *i2s_read_buff, uint8_t *flash_write_buff)
 {
     size_t bytes_read = 0;
 
-    if (i2s_read(I2S_PORT, (void *)i2s_read_buff, I2S_READ_LEN, &bytes_read, 100) == ESP_OK)
-    {
-        if (bytes_read > 0)
-        {
-            i2s_adc_data_scale(flash_write_buff, (uint8_t *)i2s_read_buff, I2S_READ_LEN);
-        }
-        else
-        {
-            Serial.println("Bytes lost");
-        }
-    }
+    i2s_read(I2S_PORT, (void *)i2s_read_buff, I2S_READ_LEN, &bytes_read, 100);
+    i2s_adc_data_scale(flash_write_buff, (uint8_t *)i2s_read_buff, I2S_READ_LEN);
 }
 
 int16_t i2s_measurement()

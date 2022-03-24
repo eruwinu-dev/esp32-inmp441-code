@@ -20,7 +20,7 @@ bool endRecording = false;
 
 File file;
 
-TaskHandle_t RecordTask;
+const long interval = 500;
 
 void createWavFile()
 {
@@ -77,48 +77,6 @@ void asyncServerInit()
 	Serial.println("Started Server.");
 }
 
-void recordData(void *arg)
-{
-	for (;;)
-	{
-		while (1)
-		{
-			if (startRecording)
-			{
-				endRecording = false;
-				break;
-			}
-		}
-		createWavFile();
-		int flash_wr_size = 0;
-		size_t bytes_read = 0;
-		for (int i = 0; i < 2; i++)
-		{
-
-			i2s_read(I2S_PORT, (void *)i2s_read_buff, I2S_READ_LEN, &bytes_read, 100);
-		}
-		Serial.println("Recording start.");
-		while (flash_wr_size < FLASH_RECORD_SIZE / 1.5)
-		{
-			i2s_adc(i2s_read_buff, flash_write_buff);
-			// writeToWav(SPIFFS, "/recording.wav", (const byte *)flash_write_buff, I2S_READ_LEN);
-			// example_disp_buf(flash_write_buff, I2S_READ_LEN);
-			file.write((const byte *)flash_write_buff, I2S_READ_LEN);
-			flash_wr_size += I2S_READ_LEN;
-			Serial.print(".");
-		}
-		Serial.println();
-		file.close();
-		i2s_cleanup(i2s_read_buff, flash_write_buff);
-		endRecording = true;
-		Serial.println("Recording stopped. Server running.");
-		server.on("/recording", HTTP_GET, [](AsyncWebServerRequest *request)
-				  { request->send(SPIFFS, "/recording.wav", "audio/mpeg"); });
-		server.begin();
-		vTaskDelete(NULL);
-	}
-}
-
 void setup()
 {
 	Serial.begin(115200);
@@ -152,13 +110,14 @@ void setup()
 
 		i2s_read(I2S_PORT, (void *)i2s_read_buff, I2S_READ_LEN, &bytes_read, 100);
 	}
+	i2s_zero_dma_buffer(I2S_PORT);
 	Serial.println("Recording start.");
+	delay(500);
 	while (flash_wr_size < FLASH_RECORD_SIZE) // try FLASH_RECORD_SIZE / 1.5
 	{
 		i2s_adc(i2s_read_buff, flash_write_buff);
 		file.write((const byte *)flash_write_buff, I2S_READ_LEN);
 		flash_wr_size += I2S_READ_LEN;
-		Serial.print(".");
 	}
 	Serial.println();
 	file.close();
